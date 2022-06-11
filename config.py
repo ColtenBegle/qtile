@@ -24,7 +24,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from libqtile import bar, layout, widget
+import os
+import subprocess
+from libqtile import bar, layout, widget, hook
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 
@@ -37,6 +39,12 @@ terminal = "kitty"
 launcher = "rofi -show drun"
 margin = 4
 border_width = 2
+
+
+@hook.subscribe.startup_once
+def autostart():
+    home = os.path.expanduser('~/.config/qtile/autostart.sh')
+    subprocess.run([home])
 
 
 # Keybindings
@@ -130,6 +138,10 @@ layouts = [
         border_width=border_width,
         margin=margin,
     ),
+    layout.Floating(
+        border_focus=default_dark.base0E,
+        border_width=border_width,
+    )
 ]
 
 
@@ -146,12 +158,14 @@ dot = widget.TextBox(text="", foreground=default_dark.base03, padding=10)
 
 volume_widget = [
     widget.TextBox(text="", foreground=default_dark.base0A),
-    widget.Volume(foreground=default_dark.base0A),
+    widget.Volume(
+        foreground=default_dark.base0A,
+    )
 ]
 
 net_widget = [
     widget.TextBox(text="", foreground=default_dark.base0B),
-    widget.Net(format="{down} ↓↑ {up}", foreground=default_dark.base0B)
+    widget.Wlan(foreground=default_dark.base0B)
 ]
 
 mem_widget = [
@@ -159,9 +173,13 @@ mem_widget = [
     widget.Memory(foreground=default_dark.base0C)
 ]
 
+layout_widget = [
+    widget.CurrentLayout(foreground=default_dark.base0E)
+]
+
 clock_widget = [
-    widget.TextBox(text="", foreground=default_dark.base0E),
-    widget.Clock(format="%Y-%m-%d %a %I:%M %p", foreground=default_dark.base0E),
+    widget.TextBox(text="", foreground=default_dark.base0D),
+    widget.Clock(format="%Y-%m-%d %a %I:%M %p", foreground=default_dark.base0D),
 ]
 
 # Creating widgets
@@ -188,6 +206,8 @@ widgets.extend(net_widget)
 widgets.append(dot)
 widgets.extend(mem_widget)
 widgets.append(dot)
+widgets.extend(layout_widget)
+widgets.append(dot)
 widgets.extend(clock_widget)
 widgets.append(widget.Sep(foreground=default_dark.base01, linewidth=4))
 
@@ -201,7 +221,7 @@ screens = [
             background=default_dark.base01,
             margin = [margin, margin, 0, margin],
         ),
-        wallpaper="/home/colten/Pictures/Wallpapers/sunset.jpg",
+        wallpaper="/home/colten/Pictures/Wallpapers/leaf.jpg",
         wallpaper_mode="stretch"
     ),
 ]
@@ -226,9 +246,13 @@ floating_layout = layout.Floating(
         Match(wm_class="makebranch"),  # gitk
         Match(wm_class="maketag"),  # gitk
         Match(wm_class="ssh-askpass"),  # ssh-askpass
+        Match(wm_class="Steam"),
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
-    ]
+        Match(title="steam"), # Steam
+    ],
+    border_focus=default_dark.base0E,
+    border_width=border_width,
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
